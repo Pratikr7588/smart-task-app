@@ -1,0 +1,121 @@
+<div class="min-h-screen bg-slate-900 text-slate-200 font-sans selection:bg-indigo-500/30">
+  
+  <!-- Navigation Header -->
+  <header class="sticky top-0 z-40 w-full backdrop-blur flex-none border-b border-slate-700/60 bg-slate-900/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Smart Tasks</span>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium text-slate-400">Welcome, <span class="text-white">{{ user()?.username }}</span></span>
+          <button (click)="logout()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Analytics Header -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50 flex flex-col justify-center relative overflow-hidden group">
+        <div class="absolute right-0 top-0 w-32 h-32 bg-indigo-500/10 rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110"></div>
+        <p class="text-sm text-slate-400 font-medium tracking-wide pb-1">Total Tasks</p>
+        <p class="text-3xl font-bold text-white">{{ stats().total }}</p>
+      </div>
+      
+      <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 flex flex-col justify-center">
+        <p class="text-sm text-slate-400 font-medium tracking-wide pb-1">Pending Priority</p>
+        <p class="text-3xl font-bold text-amber-400">{{ stats().pending }}</p>
+      </div>
+
+      <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 flex flex-col justify-center">
+        <p class="text-sm text-slate-400 font-medium tracking-wide pb-1">Completed</p>
+        <p class="text-3xl font-bold text-emerald-400">{{ stats().completed }}</p>
+      </div>
+
+      <div class="bg-gradient-to-br from-indigo-900/60 to-purple-900/60 rounded-xl p-6 border border-indigo-500/30 flex flex-col justify-center relative overflow-hidden">
+        <p class="text-sm text-indigo-200 font-medium tracking-wide pb-1">Completion Rate</p>
+        <div class="flex items-baseline gap-2">
+          <p class="text-4xl font-black text-white">{{ stats().completionRate }}%</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left Column: Tasks -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-slate-400">Energy Filter:</span>
+            <div class="flex gap-2">
+              <button 
+                *ngFor="let filter of energyFilters"
+                (click)="setFilter(filter)"
+                [class.bg-indigo-500]="currentFilter === filter"
+                [class.text-white]="currentFilter === filter"
+                [class.bg-slate-700]="currentFilter !== filter"
+                class="px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-indigo-400 transition-colors">
+                {{ filter }}
+              </button>
+            </div>
+          </div>
+          
+          <button 
+            (click)="toggleForm()"
+            class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium shadow-lg shadow-indigo-600/30 transition-all active:scale-[0.98]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Task
+          </button>
+        </div>
+
+        <!-- Task List Component -->
+        <div class="bg-slate-800/30 rounded-2xl border border-slate-700/50 overflow-hidden">
+           <app-task-list></app-task-list>
+        </div>
+      </div>
+
+      <!-- Right Column: Sidebar / Form -->
+      <div class="lg:col-span-1">
+        <div *ngIf="showNewTaskForm" class="bg-slate-800 rounded-2xl border border-slate-700/50 p-6 sticky top-24 shadow-2xl shadow-black/50">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white">Create Smart Task</h3>
+            <button (click)="toggleForm()" class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-700 transition">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <app-task-form (taskCreated)="toggleForm()"></app-task-form>
+        </div>
+
+        <div *ngIf="!showNewTaskForm" class="bg-gradient-to-b from-indigo-900/20 to-transparent rounded-2xl border border-indigo-500/20 p-6 text-center">
+          <div class="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-500/30">
+            <svg class="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <h4 class="text-lg font-bold text-white mb-2">Smart Prioritization</h4>
+          <p class="text-sm text-slate-400">Tasks are automatically sorted based on the Eisenhower Matrix algorithm. High importance and looming due dates will naturally bubble to the top of your list.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
